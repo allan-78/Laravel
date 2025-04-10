@@ -29,18 +29,18 @@ Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edi
 Route::put('/profile/update', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
 // Cart Routes
-Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/{product}', [App\Http\Controllers\CartController::class, 'store'])->name('cart.store');
-Route::put('/cart/{item}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/{item}', [App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/{product}', [App\Http\Controllers\CartController::class, 'store'])->name('cart.store');
+    Route::put('/cart/{item}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{item}', [App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
+    Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
+});
 
 // Product Routes
 Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
 Route::get('/products/search', [App\Http\Controllers\ProductController::class, 'search'])->name('products.search');
 Route::get('/products/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
-
-// Checkout Route
-Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
 
 // Transaction Routes
 Route::post('/transactions', [App\Http\Controllers\TransactionController::class, 'store'])->name('transactions.store');

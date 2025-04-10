@@ -17,12 +17,12 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'You must be logged in to access this page.');
+        if (!Auth::check() || !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('login')->with('error', 'You must be logged in and verified to access this page.');
         }
 
-        if (!Auth::user()->is_admin) {
-            return redirect()->route('home')->with('error', 'You do not have permission to access this page.');
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('home')->with('error', 'You do not have admin privileges to access this page.');
         }
 
         return $next($request);

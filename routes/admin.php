@@ -17,6 +17,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'a
     
     // Products
     Route::resource('products', ProductController::class);
+    Route::get('products/import', [ProductController::class, 'import'])->name('products.import');
+    Route::post('products/import', [ProductController::class, 'importStore'])->name('products.import.store');
     
     // Categories
     Route::resource('categories', CategoryController::class);
