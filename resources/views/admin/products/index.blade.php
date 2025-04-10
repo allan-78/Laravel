@@ -5,23 +5,27 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>{{ __('Products') }}</span>
+                <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                    <span><i class="fas fa-tools me-2"></i>{{ __('EnM Hardware Products') }}</span>
                     <div>
-                        <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary">Add Product</a>
-                        <a href="{{ route('admin.products.import') }}" class="btn btn-sm btn-success">Import Excel</a>
+                        <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-light">
+                            <i class="fas fa-plus-circle me-1"></i> Add Product
+                        </a>
+                        <a href="{{ route('admin.products.import') }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-excel me-1"></i> Import Excel
+                        </a>
                     </div>
                 </div>
 
                 <div class="card-body">
                     @if (session('success'))
                         <div class="alert alert-success" role="alert">
-                            {{ session('success') }}
+                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
                         </div>
                     @endif
 
                     <table id="products-table" class="table table-bordered table-striped">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
@@ -35,25 +39,32 @@
                             @foreach($products as $product)
                                 <tr>
                                     <td>{{ $product->id }}</td>
-                                    <td>{{ $product->name }}</td>
+                                    <td class="fw-bold">{{ $product->name }}</td>
                                     <td>{{ Str::limit($product->description, 50) }}</td>
-                                    <td>${{ number_format($product->price, 2) }}</td>
+                                    <td class="text-primary fw-bold">${{ number_format($product->price, 2) }}</td>
                                     <td>
                                         @if($product->images->count() > 0)
-                                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" width="50" height="50" alt="Product Image">
+                                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" 
+                                                 class="rounded border" width="50" height="50" alt="Product Image">
                                             @if($product->images->count() > 1)
                                                 <span class="badge bg-secondary">+{{ $product->images->count() - 1 }}</span>
                                             @endif
                                         @else
-                                            No Image
+                                            <div class="text-center bg-light rounded p-1" style="width:50px; height:50px">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                        <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a>
                                         <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
