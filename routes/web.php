@@ -44,6 +44,7 @@ Route::get('/products/{product}', [App\Http\Controllers\ProductController::class
 
 // Transaction Routes
 Route::post('/transactions', [App\Http\Controllers\TransactionController::class, 'store'])->name('transactions.store');
+Route::patch('/transactions/{transaction}/status', [App\Http\Controllers\TransactionController::class, 'updateStatus'])->name('transactions.update-status')->middleware('auth');
 
 // Review Routes
 Route::get('/reviews', [App\Http\Controllers\ReviewController::class, 'index'])->name('reviews.index');
@@ -52,3 +53,5 @@ Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'store'])
 Route::get('/reviews/{review}/edit', [App\Http\Controllers\ReviewController::class, 'edit'])->name('reviews.edit');
 Route::put('/reviews/{review}', [App\Http\Controllers\ReviewController::class, 'update'])->name('reviews.update');
 Route::delete('/reviews/{review}', [App\Http\Controllers\ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+// Admin routes are defined in routes/admin.php

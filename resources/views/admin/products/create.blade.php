@@ -70,13 +70,11 @@
                                     <span class="input-group-text bg-light">
                                         <i class="fas fa-box"></i>
                                     </span>
-                                    <select class="form-select" id="category" name="category">
+                                    <select class="form-select" id="category_id" name="category_id">
                                         <option value="" selected disabled>Select Category</option>
-                                        <option value="power_tools">Power Tools</option>
-                                        <option value="hand_tools">Hand Tools</option>
-                                        <option value="measuring_tools">Measuring Tools</option>
-                                        <option value="safety_equipment">Safety Equipment</option>
-                                        <option value="fasteners">Fasteners</option>
+                                        @foreach(\App\Models\Category::all() as $category)
+                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -94,13 +92,11 @@
                             </div>
                             
                             <div class="col-md-6">
-                                <label for="sku" class="form-label fw-bold">SKU</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light">
-                                        <i class="fas fa-barcode"></i>
-                                    </span>
-                                    <input type="text" class="form-control" id="sku" name="sku" placeholder="ENM0001">
-                                </div>
+                                
+    }
+  ]
+}
+```
                             </div>
                         </div>
                         

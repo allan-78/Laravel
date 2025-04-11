@@ -16,6 +16,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'a
     Route::resource('users', UserController::class);
     
     // Products
+    Route::get('products/data', [ProductController::class, 'getProducts'])->name('products.data');
     Route::resource('products', ProductController::class);
     Route::get('products/import', [ProductController::class, 'import'])->name('products.import');
     Route::post('products/import', [ProductController::class, 'importStore'])->name('products.import.store');
@@ -26,6 +27,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'a
     // Reviews
     Route::resource('reviews', ReviewController::class);
     
+    // Product Images
+    Route::delete('product-images/{image}', [ProductController::class, 'destroyImage'])->name('product-images.destroy');
+    
     // Orders
+    Route::get('orders/data', [App\Http\Controllers\Admin\OrderDataController::class, '__invoke'])->name('orders.data');
     Route::resource('orders', OrderController::class);
+    Route::put('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 });
