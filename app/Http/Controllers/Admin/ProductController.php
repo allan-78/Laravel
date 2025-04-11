@@ -6,43 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Imports\ProductsImport;
+use App\DataTables\ProductDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
+use Yajra\DataTables\Html\Column;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the products.
      */
-    public function index()
+    public function index(ProductDataTable $dataTable)
     {
-        return view('admin.products.index');
+        return $dataTable->render('admin.products.index');
     }
 
-    /**
-     * Get products data for DataTables.
-     */
-    public function getProducts()
-    {
-        $products = Product::with('images');
-        
-        return DataTables::of($products)
-            ->addColumn('action', function ($product) {
-                return '<a href="'.route('admin.products.edit', $product->id).'" class="btn btn-sm btn-primary">Edit</a> '.                
-                       '<form action="'.route('admin.products.destroy', $product->id).'" method="POST" style="display:inline">'.                
-                       csrf_field().                
-                       method_field('DELETE').                
-                       '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\');">Delete</button>'.                
-                       '</form>';
-            })
-            ->addColumn('images', function ($product) {
-                return $product->images->count() . ' images';
-            })
-            ->rawColumns(['action'])
-            ->make(true);
-    }
+
 
     /**
      * Show the form for creating a new product.

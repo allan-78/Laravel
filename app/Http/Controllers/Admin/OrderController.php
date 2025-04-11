@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
+use App\Models\Transaction;
 use App\Mail\TransactionReceipt;
 use App\Services\PdfGenerator;
 use Illuminate\Http\Request;
@@ -26,26 +26,26 @@ class OrderController extends Controller
 
     public function data()
     {
-        $orders = Order::with(['user', 'products'])->select('orders.*');
+        $transactions = Transaction::with(['user', 'product'])->select('transactions.*');
 
-        return DataTables::of($orders)
-            ->addColumn('customer', function ($order) {
-                return $order->user->name;
+        return DataTables::of($transactions)
+            ->addColumn('customer', function ($transaction) {
+                return $transaction->user->name;
             })
-            ->addColumn('product', function ($order) {
-                return $order->products->pluck('name')->implode(', ');
+            ->addColumn('product', function ($transaction) {
+                return $transaction->product->name;
             })
-            ->addColumn('quantity', function ($order) {
-                return $order->products->sum('pivot.quantity');
+            ->addColumn('quantity', function ($transaction) {
+                return $transaction->quantity;
             })
-            ->addColumn('date', function ($order) {
-                return $order->created_at->format('Y-m-d H:i:s');
+            ->addColumn('date', function ($transaction) {
+                return $transaction->created_at->format('Y-m-d H:i:s');
             })
-            ->addColumn('total', function ($order) {
-                return '$' . number_format($order->total, 2);
+            ->addColumn('total', function ($transaction) {
+                return '$' . number_format($transaction->total_price, 2);
             })
-            ->addColumn('actions', function ($order) {
-                return '<button class="btn btn-sm btn-primary" onclick="openStatusModal(' . $order->id . ', \'' . $order->status . '\')">
+            ->addColumn('actions', function ($transaction) {
+                return '<button class="btn btn-sm btn-primary" onclick="openStatusModal(' . $transaction->id . ', \'' . $transaction->status . '\')">
                             Update Status
                         </button>';
             })
@@ -53,42 +53,42 @@ class OrderController extends Controller
             ->make(true);
     }
 
-    public function show(Order $order)
+    public function show(Transaction $transaction)
     {
-        return view('admin.orders.show', compact('order'));
+        return view('admin.orders.show', compact('transaction'));
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(Request $request, Transaction $transaction)
     {
         try {
             $request->validate([
-                'status' => 'required|in:completed,failed,refunded'
+                'status' => 'required|in:' . implode(',', Transaction::STATUSES)
             ]);
 
-            $order->status = $request->status;
-            $order->save();
+            $transaction->status = $request->status;
+            $transaction->save();
 
             // Generate PDF
-            $pdf = $this->pdfGenerator->generateTransactionReceipt($order);
+            $pdf = $this->pdfGenerator->generateTransactionReceipt($transaction);
 
             // Send email with PDF attachment
-            Mail::to($order->user->email)
-                ->send(new TransactionReceipt($order, $pdf));
+            Mail::to($transaction->user->email)
+                ->send(new TransactionReceipt($transaction, $pdf));
 
             return response()->json([
-                'message' => 'Order status updated successfully',
-                'status' => $order->status
+                'message' => 'Transaction status updated successfully',
+                'status' => $transaction->status
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating order status: ' . $e->getMessage()
+                'message' => 'Error updating transaction status: ' . $e->getMessage()
             ], 422);
         }
     }
 
-    public function destroy(Order $order)
+    public function destroy(Transaction $transaction)
     {
-        $order->delete();
+        $transaction->delete();
         return redirect()->route('admin.orders.index');
     }
 }

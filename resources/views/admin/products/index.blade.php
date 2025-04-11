@@ -22,18 +22,7 @@
                 </div>
             @endif
 
-            <table class="table table-hover" id="products-table">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Price</th>
-                        <th>Images</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
+            {!! $dataTable->table(['class' => 'table table-hover']) !!}
         </div>
     </div>
 </div>
@@ -43,38 +32,7 @@
 @endpush
 
 @push('scripts')
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-    <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        $(document).ready(function () {
-            $('#products-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: '{{ route("admin.products.data") }}',
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'name', name: 'name' },
-                    { data: 'description', name: 'description' },
-                    { 
-                        data: 'price', 
-                        name: 'price',
-                        render: function(data) {
-                            return '$' + parseFloat(data).toFixed(2);
-                        }
-                    },
-                    { data: 'images', name: 'images' },
-                    { data: 'action', name: 'action', orderable: false, searchable: false }
-                ]
-            });
-        });
-    </script>
+    {!! $dataTable->scripts() !!}
 @endpush
 
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\DataTables\ProductDataTable;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -11,32 +12,9 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(ProductDataTable $dataTable)
     {
-        $query = Product::query();
-        
-        if ($request->has('category') && $request->category != '') {
-            $query->where('category_id', $request->category);
-        }
-        
-        if ($request->has('price_range') && $request->price_range != '') {
-            $priceRange = $request->price_range;
-            
-            if ($priceRange === '0-50') {
-                $query->whereBetween('price', [0, 50]);
-            } elseif ($priceRange === '50-100') {
-                $query->whereBetween('price', [50, 100]);
-            } elseif ($priceRange === '100-200') {
-                $query->whereBetween('price', [100, 200]);
-            } elseif ($priceRange === '200+') {
-                $query->where('price', '>', 200);
-            }
-        }
-        
-        $products = $query->get();
-        $categories = Category::all();
-        
-        return view('products.index', compact('products', 'categories'));
+        return $dataTable->render('products.index');
     }
 
     /**
