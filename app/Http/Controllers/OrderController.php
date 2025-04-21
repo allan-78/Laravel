@@ -9,28 +9,24 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Transaction::with(['user', 'product'])
+        $orders = auth()->user()->transactions()
+            ->with(['product'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('orders.index', compact('orders'));
     }
 
-    public function destroy(Transaction $transaction)
+    public function refund(Transaction $transaction)
     {
+        // Ensure user can only refund their own orders
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+    
         $transaction->update(['status' => 'refunded']);
         
         return redirect()->route('orders.index')
-            ->with('success', 'Order marked as refunded successfully');
-    }
-
-    public function userOrders()
-    {
-        $orders = auth()->user()->orders()
-                    ->with(['items.product'])
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-                    
-        return view('orders.user_index', compact('orders'));
+            ->with('success', 'Order has been marked as refunded');
     }
 }

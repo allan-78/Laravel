@@ -103,4 +103,19 @@ class ProductController extends Controller
     {
         //
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        
+        $products = Product::with(['category', 'images'])
+            ->where('name', 'like', '%'.$query.'%')
+            ->orWhere('description', 'like', '%'.$query.'%')
+            ->orderBy('name') // Sort by product name
+            ->paginate(12);
+            
+        $categories = Category::has('products')->get();
+        
+        return view('products.index', compact('products', 'categories'));
+    }
 }

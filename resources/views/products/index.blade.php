@@ -94,3 +94,10 @@
 </style>
 @endpush
 @endsection
+
+@if(request()->has('search'))
+    <div class="alert alert-info mb-4">
+        Showing results for: "{{ request('search') }}"
+        <a href="{{ route('products.index') }}" class="float-end">Clear search</a>
+    </div>
+@endif

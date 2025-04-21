@@ -15,7 +15,14 @@ class Product extends Model
 
     use HasFactory, Searchable;
 
-    protected $fillable = ['name', 'slug', 'description', 'price', 'category_id', 'is_active'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'price',
+        'category_id',
+        'stock' // Ensure stock is included
+    ];
 
     public function category()
     {

@@ -127,9 +127,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <form class="search-form d-flex" action="{{ route('products.search') }}" method="GET">
-                                <input class="form-control me-0" type="search" name="query" placeholder="Search hardware..." aria-label="Search">
-                                <button class="btn" type="submit"><i class="fas fa-search"></i></button>
+                            <form class="d-flex search-form" action="{{ route('products.search') }}" method="GET">
+                                <input class="form-control me-2" type="search" name="query" 
+                                       placeholder="Search products..." 
+                                       value="{{ request('query') }}"
+                                       aria-label="Search">
+                                <button class="btn btn-outline-success" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
                             </form>
                         </li>
                     </ul>

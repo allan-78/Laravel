@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [App\Http\Controllers\ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [App\Http\Controllers\ProductController::class, 'store'])->name('products.store');
-    Route::get('/products/search', [App\Http\Controllers\ProductController::class, 'search'])->name('products.search');
+    Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
     Route::get('/products/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
     Route::get('/products/{product}/edit', [App\Http\Controllers\ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [App\Http\Controllers\ProductController::class, 'update'])->name('products.update');
@@ -111,7 +111,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function() {
 // Make sure these are the only order-related routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::post('/orders/{transaction}/refund', [OrderController::class, 'refund'])->name('orders.refund');
+    Route::delete('/orders/{transaction}', [OrderController::class, 'destroy'])->name('orders.destroy');
 });
 
 // Admin Orders Routes (simplified)

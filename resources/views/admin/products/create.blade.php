@@ -87,7 +87,11 @@
                                     <span class="input-group-text bg-light">
                                         <i class="fas fa-boxes"></i>
                                     </span>
-                                    <input type="number" class="form-control" id="stock" name="stock" placeholder="0" min="0">
+                                    <div class="form-group">
+                                        <label for="stock">Stock</label>
+                                        <input type="number" name="stock" id="stock" class="form-control" 
+                                               value="{{ old('stock') }}" required min="0">
+                                    </div>
                                 </div>
                             </div>
                             

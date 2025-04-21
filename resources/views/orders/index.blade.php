@@ -40,9 +40,8 @@
                             </td>
                             <td>
                                 @if($order->status !== 'refunded')
-                                <form action="{{ route('orders.destroy', $order) }}" method="POST">
+                                <form action="{{ route('orders.refund', $order) }}" method="POST">
                                     @csrf
-                                    @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger">
                                         <i class="fas fa-undo"></i> Refund
                                     </button>

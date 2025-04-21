@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 use Yajra\DataTables\Html\Column;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -43,13 +44,21 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric',
-            'category_id' => 'nullable|exists:categories,id',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'stock' => 'required|integer|min:0', // Add stock validation
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-        $product = Product::create($validated);
-
+    
+        $product = Product::create([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'category_id' => $validated['category_id'],
+            'stock' => $validated['stock'] // Ensure stock is included
+        ]);
+    
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('product_images', 'public');
@@ -59,8 +68,9 @@ class ProductController extends Controller
                 ]);
             }
         }
-
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
+    
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Product created successfully.');
     }
 
     /**
@@ -174,5 +184,16 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         return view('admin.products.show', compact('product'));
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        
+        $products = Product::where('name', 'like', '%'.$query.'%')
+            ->orWhere('description', 'like', '%'.$query.'%')
+            ->paginate(10);
+            
+        return view('admin.products.index', compact('products'));
     }
 }
