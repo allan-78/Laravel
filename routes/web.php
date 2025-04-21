@@ -122,6 +122,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function() {
         ->name('admin.orders.updateStatus');
 });
 
+Route::prefix('admin')->group(function() {
+    Route::get('/dashboard/sales-data', [Admin\DashboardController::class, 'salesData']);
+    Route::get('/dashboard/product-data', [Admin\DashboardController::class, 'productData']);
+    Route::get('/admin/dashboard/data', [Admin\DashboardController::class, 'data'])
+        ->name('admin.dashboard.data');
+});
+
 Route::get('/reviews/unreviewed', [ReviewController::class, 'unreviewed'])
     ->name('reviews.unreviewed')
     ->middleware('auth');

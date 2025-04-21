@@ -92,5 +92,6 @@ class OrderController extends Controller
                 'message' => 'Error updating status. Please try again.'
             ], 422);
         }
+        
     }
 }

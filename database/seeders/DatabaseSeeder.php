@@ -6,6 +6,8 @@ use Illuminate\Database\Seeder;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Transaction; // Add this import
+use App\Models\Review; // Also need to import Review model
 
 class DatabaseSeeder extends Seeder
 {
@@ -135,5 +137,74 @@ class DatabaseSeeder extends Seeder
                 $createdProduct->images()->create($image);
             }
         }
+
+        // Create 20 additional verified users
+        $additionalUsers = [];
+        for ($i = 1; $i <= 20; $i++) {
+            $additionalUsers[] = User::create([
+                'name' => 'Customer'.$i,
+                'email' => 'customer'.$i.'@example.com',
+                'email_verified_at' => now(),
+                'password' => bcrypt('password123'),
+                'role' => 'customer',
+                'created_at' => now()->subDays(rand(1, 30)),
+                'updated_at' => now()
+            ]);
+        }
+
+        // Combine all users (admin, your specified users, and new users)
+        $allUsers = array_merge([User::where('email', 'admin@example.com')->first()], 
+                                [User::where('email', 'allanmonforte123@gmail.com')->first()],
+                                [User::where('email', 'allanmonforte1@gmail.com')->first()],
+                                $additionalUsers);
+
+        // Create transactions and reviews for each product
+        $products = Product::all();
+        foreach ($products as $product) {
+            // Create 3-5 transactions per product
+            $transactions = [];
+            $reviewCount = rand(3, 4); // 3-4 reviews per product
+            
+            for ($i = 0; $i < $reviewCount; $i++) {
+                $user = $allUsers[array_rand($allUsers)];
+                $quantity = rand(1, 3);
+                
+                $transaction = Transaction::create([
+                    'product_id' => $product->id,
+                    'user_id' => $user->id,
+                    'quantity' => $quantity,
+                    'total_price' => $product->price * $quantity,
+                    'status' => 'completed',
+                    'created_at' => now()->subDays(rand(1, 30)),
+                    'updated_at' => now()
+                ]);
+                
+                // Create review for each transaction
+                Review::create([
+                    'product_id' => $product->id,
+                    'user_id' => $user->id,
+                    'rating' => rand(3, 5), // Ratings between 3-5 stars
+                    'comment' => $this->getRandomReviewComment($product->name),
+                    'created_at' => $transaction->created_at,
+                    'updated_at' => now()
+                ]);
+            }
+        }
+    }
+
+    private function getRandomReviewComment($productName)
+    {
+        $comments = [
+            "This $productName works great! Very satisfied with my purchase.",
+            "The $productName is good quality for the price.",
+            "I'm happy with this $productName. Does what it's supposed to.",
+            "Solid $productName. Would recommend to others.",
+            "The $productName exceeded my expectations. Works perfectly.",
+            "Good $productName. No complaints so far.",
+            "This $productName is exactly what I needed. Very useful.",
+            "Impressed with this $productName. Good build quality."
+        ];
+        
+        return $comments[array_rand($comments)];
     }
 }
