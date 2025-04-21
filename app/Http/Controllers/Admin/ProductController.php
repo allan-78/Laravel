@@ -31,7 +31,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        $categories = \App\Models\Category::all();
+        return view('admin.products.create', compact('categories'));
     }
 
     /**
@@ -131,6 +132,14 @@ class ProductController extends Controller
      */
     public function showImportForm()
     {
+        \Log::info('Import form accessed - checking middleware');
+        if (!auth()->check()) {
+            \Log::warning('User not authenticated');
+        }
+        if (!auth()->user()->isAdmin()) { // Adjust based on your admin check
+            \Log::warning('User is not admin');
+        }
+        
         return view('admin.products.import');
     }
 
@@ -140,12 +149,16 @@ class ProductController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls|max:2048'
         ]);
-
-        Excel::import(new ProductsImport, $request->file('file'));
-
-        return redirect()->route('admin.products.index')->with('success', 'Products imported successfully.');
+    
+        try {
+            Excel::import(new ProductsImport, $request->file('file'));
+            return redirect()->route('admin.products.index')
+                       ->with('success', 'Products imported successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error importing file: '.$e->getMessage());
+        }
     }
 
     /**
@@ -156,5 +169,10 @@ class ProductController extends Controller
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
         return back()->with('success', 'Image deleted successfully.');
+    }
+
+    public function show(Product $product)
+    {
+        return view('admin.products.show', compact('product'));
     }
 }

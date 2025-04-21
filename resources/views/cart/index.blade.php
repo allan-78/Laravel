@@ -14,7 +14,7 @@
                         </div>
                     @endif
 
-                    @if(count($cartItems) > 0)
+                    @if($cartItems->count() > 0)
                         <table class="table">
                             <thead>
                                 <tr>
@@ -30,39 +30,27 @@
                                     <tr>
                                         <td>{{ $item->product->name }}</td>
                                         <td>${{ number_format($item->product->price, 2) }}</td>
-                                        <td>
-                                            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="form-control" style="width: 70px;">
-                                            </form>
-                                        </td>
+                                        <td>{{ $item->quantity }}</td>
                                         <td>${{ number_format($item->product->price * $item->quantity, 2) }}</td>
                                         <td>
-                                            <form action="{{ route('cart.destroy', $item->id) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('cart.remove', $item->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                                <button type="submit" class="btn btn-danger">Remove</button>
                                             </form>
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3"></td>
-                                    <td><strong>Total: ${{ number_format($total, 2) }}</strong></td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
                         </table>
-
-                        <div class="text-end">
-                            <a href="{{ route('checkout') }}" class="btn btn-success">Proceed to Checkout</a>
+                    
+                        <div class="text-end mt-4">
+                            <a href="{{ route('cart.checkout') }}" class="btn btn-primary btn-lg">
+                                Proceed to Checkout
+                            </a>
                         </div>
                     @else
                         <p>Your cart is empty.</p>
-                        <a href="{{ route('products.index') }}" class="btn btn-primary">Continue Shopping</a>
                     @endif
                 </div>
             </div>

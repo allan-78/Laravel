@@ -22,8 +22,16 @@ class TransactionController extends Controller
             return back()->with('error', 'No products in cart');
         }
         
+        $transactions = [];
+        $totalPrice = 0;
+        
         foreach ($products as $productId => $quantity) {
             $product = Product::findOrFail($productId);
+            if ($product->stock < $quantity) {
+                return back()->with('error', 'Insufficient stock for ' . $product->name);
+            }
+            
+            $product->decrement('stock', $quantity);
             
             $transaction = new Transaction();
             $transaction->user_id = $user->id;
@@ -31,39 +39,31 @@ class TransactionController extends Controller
             $transaction->quantity = $quantity;
             $transaction->total_price = $product->price * $quantity;
             $transaction->status = 'pending';
-            if (!in_array($transaction->status, Transaction::STATUSES)) {
-                return back()->with('error', 'Invalid transaction status');
-            }
             $transaction->save();
+            
+            // Verify the transaction was created and has a product
+            if (!$transaction || !$transaction->product) {
+                return back()->with('error', 'Error processing product: ' . $product->name);
+            }
+            
+            $transactions[] = $transaction;
+            $totalPrice += $transaction->total_price;
         }
-
+    
         // Send order confirmation email with PDF receipt
-        $transaction = $user->transactions()->latest()->first();
         $pdf = Pdf::loadView('emails.receipt_pdf', [
-            'transaction' => $transaction,
+            'transactions' => $transactions,
             'user' => $user,
-            'items' => $user->transactions()->with('product')->latest()->get()
+            'totalPrice' => $totalPrice
         ]);
         
         Mail::to($user->email)->send(
-            new TransactionReceipt($user->transactions()->latest()->first(), $pdf)
+            new TransactionReceipt($transactions, $pdf, $user)
         );
-
+    
         // Clear cart after successful order
-        $user->cartItems()->delete();
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Order placed successfully!'
-            ]);
-        }
-
-        return redirect()->route('home')->with('success', 'Order placed successfully!');
-
-        // Clear the cart
         $user->cart()->delete();
-        
+    
         return redirect()->route('products.index')->with('success', 'Order placed successfully! You will receive a confirmation email shortly.');
     }
     

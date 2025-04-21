@@ -37,7 +37,10 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        return $request->only($this->username(), 'password');
+        return array_merge(
+            $request->only($this->username(), 'password'),
+            ['is_active' => 1]  // Only allow active users to login
+        );
     }
 
     protected function authenticated(Request $request, $user)
@@ -59,5 +62,24 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
+    }
+
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        $user = \App\Models\User::where($this->username(), $request->{$this->username()})->first();
+        
+        if ($user && $user->is_active == 0) {
+            return redirect()->back()
+                ->withInput($request->only($this->username(), 'remember'))
+                ->withErrors([
+                    $this->username() => 'Your account is inactive. Please contact administrator.',
+                ]);
+        }
+    
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors([
+                $this->username() => trans('auth.failed'),
+            ]);
     }
 }

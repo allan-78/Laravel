@@ -13,14 +13,16 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    public function cartItems()
-    {
-        return $this->hasMany(Cart::class);
-    }
+
     
     public function cart()
     {
         return $this->hasMany(Cart::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
     }
 
     public function transactions()
@@ -32,7 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->transactions()
             ->where('product_id', $productId)
-            ->where('status', Transaction::STATUSES['completed'])
+            ->where('status', 'completed') // Changed from Transaction::STATUSES['completed']
             ->exists();
     }
 
@@ -82,4 +84,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'admin';
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

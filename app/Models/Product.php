@@ -8,6 +8,11 @@ use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     use HasFactory, Searchable;
 
     protected $fillable = ['name', 'slug', 'description', 'price', 'category_id', 'is_active'];

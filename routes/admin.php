@@ -31,7 +31,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'a
     Route::delete('product-images/{image}', [ProductController::class, 'destroyImage'])->name('product-images.destroy');
     
     // Orders
-    Route::get('orders/data', [App\Http\Controllers\Admin\OrderDataController::class, '__invoke'])->name('orders.data');
+    Route::get('orders/data', [OrderController::class, 'data'])->name('orders.data');
     Route::resource('orders', OrderController::class);
     Route::put('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+    
+    // Transactions
+    Route::get('transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('transactions.index');
+    Route::put('transactions/{transaction}/update-status', [\App\Http\Controllers\Admin\TransactionController::class, 'updateStatus'])
+        ->name('transactions.update-status');
 });

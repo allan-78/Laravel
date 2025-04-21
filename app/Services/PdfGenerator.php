@@ -7,17 +7,15 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PdfGenerator
 {
-    public function generateTransactionReceipt(Transaction $transaction): Pdf
+    public function generateTransactionReceipt(Transaction $transaction): \Barryvdh\DomPDF\PDF
     {
-        $pdf = Pdf::loadView('emails.transaction_receipt_pdf', [
+        return Pdf::loadView('emails.transaction_receipt_pdf', [
             'transaction' => $transaction,
             'user' => $transaction->user,
-            'products' => $transaction->products,
+            'products' => $transaction->product,
             'status' => $transaction->status,
-            'total' => $transaction->total,
+            'total' => $transaction->total_price,
             'date' => $transaction->created_at->format('Y-m-d H:i:s')
         ]);
-
-        return $pdf;
     }
 }

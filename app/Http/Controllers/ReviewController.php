@@ -11,12 +11,24 @@ class ReviewController extends Controller
 {    
     public function index()
     {
+        // Get all user's reviews (existing functionality)
         $reviews = Review::with('product')
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
-            
-        return view('reviews.index', compact('reviews'));
+        
+        // Get unreviewed products with completed transactions
+        $unreviewedProducts = \App\Models\Product::whereHas('transactions', function($query) {
+                $query->where('status', 'completed')
+                      ->where('user_id', auth()->id());
+                })
+                ->whereDoesntHave('reviews', function($query) {
+                    $query->where('user_id', auth()->id());
+                })
+                ->with(['transactions', 'category'])
+                ->get();
+    
+        return view('reviews.index', compact('reviews', 'unreviewedProducts'));
     }
     public function create(Product $product)
     {
@@ -106,5 +118,20 @@ class ReviewController extends Controller
         
         $review->delete();
         return back()->with('success', 'Review deleted successfully!');
+    }
+
+    public function unreviewed()
+    {
+        $unreviewedProducts = \App\Models\Product::whereHas('transactions', function($query) {
+                $query->where('status', 'completed')
+                      ->where('user_id', auth()->id());
+                })
+                ->whereDoesntHave('reviews', function($query) {
+                    $query->where('user_id', auth()->id());
+                })
+                ->with(['transactions', 'category'])
+                ->get();
+    
+        return view('reviews.unreviewed', compact('unreviewedProducts'));
     }
 }

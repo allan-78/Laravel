@@ -52,5 +52,33 @@
             <a href="{{ route('products.index') }}" class="btn btn-primary mt-2">Browse Products</a>
         </div>
     @endif
+
+    <!-- ADDED SECTION FOR UNREVIEWED PRODUCTS -->
+    <div class="mt-5">
+        <h2>Products Awaiting Your Review</h2>
+        @if(isset($unreviewedProducts) && $unreviewedProducts->count() > 0)
+            <div class="row">
+                @foreach($unreviewedProducts as $product)
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ $product->name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Purchased on {{ $product->transactions->first()->created_at->format('M d, Y') }}</p>
+                            <a href="{{ route('reviews.create', $product) }}" class="btn btn-primary">
+                                Write Review
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @else
+            <div class="alert alert-info">
+                No products awaiting your review.
+            </div>
+        @endif
+    </div>
 </div>
 @endsection

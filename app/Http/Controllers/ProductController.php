@@ -12,9 +12,37 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ProductDataTable $dataTable)
+    public function index(Request $request)
     {
-        return $dataTable->render('products.index');
+        $query = Product::with(['category', 'images'])
+            ->orderBy('created_at', 'desc');
+    
+        // Category filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+    
+        // Price range filter
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+    
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+    
+        $products = $query->paginate(12);
+        $categories = Category::has('products')->get();
+    
+        return view('products.index', compact('products', 'categories'));
     }
 
     /**
@@ -38,21 +66,18 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['category', 'images' => function($query) {
-            $query->orderBy('created_at', 'desc');
-        }, 'reviews']);
-        
-        // Ensure images relationship is always initialized
-        if (!$product->relationLoaded('images') || $product->images === null) {
-            $product->setRelation('images', collect());
-        }
-        
-        // Ensure reviews relationship is always initialized
-        if (!$product->relationLoaded('reviews') || $product->reviews === null) {
-            $product->setRelation('reviews', collect());
-        }
-        
-        return view('products.show', compact('product'));
+        $product->load(['category', 'images', 'reviews.user']);
+    
+        $relatedProducts = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->with('images')
+            ->take(4)
+            ->get();
+    
+        $hasReviewed = auth()->check() ? 
+            $product->reviews()->where('user_id', auth()->id())->exists() : false;
+    
+        return view('products.show', compact('product', 'hasReviewed', 'relatedProducts'));
     }
 
     /**
@@ -77,26 +102,5 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
-    }
-    
-    /**
-     * Search for products using Laravel Scout.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-        
-        if ($query) {
-            $products = Product::search($query)->where('is_active', true)->get();
-        } else {
-            $products = Product::where('is_active', true)->get();
-        }
-        
-        $categories = Category::all();
-        
-        return view('products.index', compact('products', 'categories'));
     }
 }

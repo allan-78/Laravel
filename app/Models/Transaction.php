@@ -9,14 +9,22 @@ class Transaction extends Model
 {
     use HasFactory;
 
-    const STATUSES = [
-        'pending' => 'pending',
-        'failed' => 'failed',
-        'completed' => 'completed',
-        'refunded' => 'refunded'
+    protected $fillable = [
+        'user_id',
+        'product_id',
+        'quantity',
+        'total_price',
+        'status',
     ];
 
-    protected $fillable = ['user_id', 'product_id', 'quantity', 'total_price', 'status'];
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_PENDING = 'pending';
+    const STATUSES = [
+        'pending',
+        'completed',
+        'failed',
+        'refunded',
+    ];
 
     public function user()
     {

@@ -1,59 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Transaction Receipt</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .details { margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-        .total { font-weight: bold; text-align: right; }
-        .footer { margin-top: 30px; text-align: center; font-size: 12px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Transaction Receipt</h1>
-        <p>Order #{{ $transaction->id }}</p>
-        <p>Date: {{ $transaction->created_at->format('m/d/Y') }}</p>
-    </div>
+<h1>Order Receipt</h1>
+<p>Customer: {{ $user->name }}</p>
+<p>Email: {{ $user->email }}</p>
 
-    <div class="details">
-        <h3>Customer Information</h3>
-        <p>{{ $user->name }}</p>
-        <p>{{ $user->email }}</p>
-    </div>
-
-    <h3>Order Details</h3>
-    <table>
-        <thead>
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($transactions ?? [] as $transaction)
+            @if($transaction?->product)
             <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
+                <td>{{ $transaction->product->name ?? 'N/A' }}</td>
+                <td>{{ $transaction->quantity ?? 0 }}</td>
+                <td>${{ number_format($transaction->product->price ?? 0, 2) }}</td>
+                <td>${{ number_format($transaction->total_price ?? 0, 2) }}</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($items as $item)
+            @endif
+        @empty
             <tr>
-                <td>{{ $item->product->name }}</td>
-                <td>${{ number_format($item->price, 2) }}</td>
-                <td>{{ $item->quantity }}</td>
-                <td>${{ number_format($item->price * $item->quantity, 2) }}</td>
+                <td colspan="4">No products in this order</td>
             </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div class="total">
-        <p>Total: ${{ number_format($transaction->total, 2) }}</p>
-    </div>
-
-    <div class="footer">
-        <p>Thank you for your purchase!</p>
-    </div>
-</body>
-</html>
+        @endforelse
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3">Total:</td>
+            <td>${{ number_format($totalPrice, 2) }}</td>
+        </tr>
+    </tfoot>
+</table>

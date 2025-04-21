@@ -19,8 +19,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @if(request()->routeIs('admin.orders.*')) active @endif" href="{{ route('admin.orders.index') }}">
-                        <i class="fas fa-clipboard-list me-1"></i>Orders
+                    <a class="nav-link @if(request()->routeIs('admin.transactions')) active @endif" href="{{ route('admin.transactions') }}">
+                        <i class="fas fa-clipboard-list me-1"></i>Transactions
                     </a>
                 </li>
                 <!-- Add more menu items as needed -->

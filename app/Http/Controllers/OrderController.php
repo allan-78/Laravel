@@ -18,9 +18,19 @@ class OrderController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        $transaction->update(['status' => Transaction::STATUSES['refunded']]);
+        $transaction->update(['status' => 'refunded']);
         
         return redirect()->route('orders.index')
             ->with('success', 'Order marked as refunded successfully');
+    }
+
+    public function userOrders()
+    {
+        $orders = auth()->user()->orders()
+                    ->with(['items.product'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                    
+        return view('orders.user_index', compact('orders'));
     }
 }

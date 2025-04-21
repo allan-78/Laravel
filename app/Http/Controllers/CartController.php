@@ -3,67 +3,70 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    /**
-     * Display the cart contents.
-     */
     public function index()
     {
-        $cartItems = auth()->user()->cartItems()->with('product')->get();
+        $cartItems = auth()->user()->cart()->with('product.images')->get();
         $total = $cartItems->sum(function($item) {
             return $item->product->price * $item->quantity;
         });
+
         return view('cart.index', compact('cartItems', 'total'));
     }
 
-    /**
-     * Add a product to cart.
-     */
     public function store(Request $request, Product $product)
     {
-        $user = auth()->user();
-        
-        // Check if product already in cart
-        $existingItem = $user->cartItems()->where('product_id', $product->id)->first();
-        
-        if ($existingItem) {
-            // Update quantity if exists
-            $existingItem->increment('quantity');
-        } else {
-            // Add new item to cart
-            $user->cartItems()->create([
-                'product_id' => $product->id,
-                'quantity' => 1
-            ]);
-        }
-        
-        return redirect()->route('cart.index')->with('status', 'Product added to cart!');
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        Cart::updateOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'product_id' => $product->id
+            ],
+            ['quantity' => $request->quantity]
+        );
+
+        return redirect()->route('cart.index')->with('success', 'Product added to cart!');
     }
 
-    /**
-     * Remove a product from cart.
-     */
-    public function destroy($item)
+    public function destroy(Cart $cart)
     {
-        $user = auth()->user();
-        $user->cartItems()->where('id', $item)->delete();
-        
+        $cart->delete();
         return redirect()->route('cart.index')->with('status', 'Product removed from cart!');
     }
     
-    /**
-     * Process the checkout.
-     */
     public function checkout()
     {
-        $cartItems = auth()->user()->cartItems()->with('product')->get();
+        $cartItems = auth()->user()->cart()->with('product.images')->get();
+        
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
+        }
+
         $total = $cartItems->sum(function($item) {
             return $item->product->price * $item->quantity;
         });
+
+        return view('cart.checkout', [
+            'cartItems' => $cartItems,
+            'total' => $total
+        ]);
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        $request->validate(['quantity' => 'required|integer|min:1|max:10']);
         
-        return view('cart.checkout', compact('cartItems', 'total'));
+        auth()->user()->cart()
+            ->where('product_id', $product->id)
+            ->update(['quantity' => $request->quantity]);
+
+        return redirect()->route('cart.index')->with('success', 'Quantity updated!');
     }
 }

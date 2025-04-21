@@ -11,21 +11,24 @@ class TransactionReceipt extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $transaction;
+    public $transactions;
     public $pdf;
+    public $user;
 
-    public function __construct(Transaction $transaction, $pdf)
+    public function __construct($transactions, $pdf, $user)
     {
-        $this->transaction = $transaction;
+        $this->transactions = $transactions;
         $this->pdf = $pdf;
+        $this->user = $user;
     }
 
     public function build()
     {
-        return $this->subject('Your Hardware Store Purchase Receipt')
-            ->view('emails.transaction_receipt')
-            ->attachData($this->pdf->output(), 'receipt.pdf', [
-                'mime' => 'application/pdf',
-            ]);
+        return $this->subject('Your Purchase Receipt')
+            ->view('emails.transaction_receipt', [
+                'transactions' => $this->transactions,
+                'user' => $this->user
+            ])
+            ->attachData($this->pdf->output(), 'receipt.pdf');
     }
 }

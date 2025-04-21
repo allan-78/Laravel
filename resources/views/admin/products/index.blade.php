@@ -9,7 +9,7 @@
                 <i class="fas fa-plus-circle me-1"></i> Add Product
             </a>
             <a href="{{ route('admin.products.import') }}" class="btn btn-success">
-                <i class="fas fa-file-excel me-1"></i> Import Excel
+                <i class="fas fa-file-import"></i> Import Products
             </a>
         </div>
     </div>

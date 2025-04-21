@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Show success message
                 const alert = $('<div class="alert alert-success alert-dismissible fade show" role="alert">')
-                    .text('Status updated successfully!')
+                    .text('Status updated successfully! Email sent to customer.')
                     .append('<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>');
                 
                 $('.top-header').after(alert);
