@@ -11,17 +11,17 @@ class ReviewController extends Controller
     public function index()
     {
         $reviews = Review::with(['user','product'])->get();
-        return view('admin.reviews.index', compact('reviews'));
+        return view('reviews.index', compact('reviews'));
     }
 
     public function show(Review $review)
     {
-        return view('admin.reviews.show', compact('review'));
+        return view('reviews.show', compact('review'));
     }
 
     public function destroy(Review $review)
     {
         $review->delete();
-        return redirect()->route('admin.reviews.index');
+        return redirect()->route('reviews.index');
     }
 }
